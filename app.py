@@ -244,15 +244,26 @@ background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,240,240,0.8
 }
 .face-W { background-color: #e5bef7; position: relative; }
 
-/* WORM */
+/* WORM FIX CHUẨN CENTER */
 .face-W {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     position: relative;
 }
 
+/* 🐛 luôn nằm chính giữa tuyệt đối (FIX LỆCH) */
+.face-W::after {
+    content: "🐛";
+    font-size: 26px;
+    line-height: 1;
 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 .dice-small.face-W::after {
     font-size: 9px;
