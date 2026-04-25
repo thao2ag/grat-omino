@@ -48,62 +48,297 @@ if st.session_state.pending_toast:
 # === CSS GAME CHÍNH: MÀU PASTEL & HIỆU ỨNG NỔI BẬT ===
 st.markdown("""
     <style>
-    .tile-box { border: 1px solid #333; border-radius: 6px; padding: 12px 2px; text-align: center;
-                background-color: white; color: black !important;
-                font-weight: 700; font-size: 24px; margin-bottom: 8px; box-shadow: 1px 1px 3px rgba(0,0,0,0.2); }
-    .tile-empty { border: 1px dashed #777; border-radius: 6px; padding: 12px 2px; text-align: center;
-                  background-color: transparent; color: #777 !important; font-size: 22px; margin-bottom: 8px; }
-    .tile-mini { border: 1px solid #333; border-radius: 4px; padding: 6px; text-align: center;
-                 background-color: white; color: black !important; font-weight: bold; width: 60px; display: inline-block; margin: 2px; }
-    
-    .worm-icon { font-size: 15px; letter-spacing: -2px; margin-top: -6px; color: black !important; }
-    
-    /* Xúc xắc View chính */
-    .dice-active-display {
-        width: 75px; height: 75px; border-radius: 12px; border: 2px solid #555;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.2); 
-        margin: 15px auto 10px auto;
-        position: relative;
-        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    
-    /* Hiệu ứng nổi bật (Pop-up nhẹ) */
-    .dice-selected-pop {
-        transform: translateY(-5px) scale(1.08); 
-        border: 2px solid #333 !important; 
-        z-index: 10;
-    }
+    /* ===== BOARD GAME PREMIUM UI ===== */
 
-    /* Tạo Glow phát sáng trùng với màu nền của từng mặt xúc xắc */
-    .dice-selected-pop.face-1 { box-shadow: 0 0 18px 4px #ffadad !important; }
-    .dice-selected-pop.face-2 { box-shadow: 0 0 18px 4px #ffd6a5 !important; }
-    .dice-selected-pop.face-3 { box-shadow: 0 0 18px 4px #fdffb6 !important; }
-    .dice-selected-pop.face-4 { box-shadow: 0 0 18px 4px #caffbf !important; }
-    .dice-selected-pop.face-5 { box-shadow: 0 0 18px 4px #9bf6ff !important; }
-    .dice-selected-pop.face-W { box-shadow: 0 0 18px 4px #e5bef7 !important; }
-    /* ĐÃ XÓA DẤU NGOẶC NHỌN THỪA Ở ĐÂY */
+.tile-box {
+    border-radius: 10px;
+    padding: 10px 2px;
+    text-align: center;
+    background: linear-gradient(145deg, #ffffff, #f1f5f9);
+    color: #0f172a !important;
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: 6px;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.12),
+                inset -2px -2px 4px rgba(255,255,255,0.6);
+    transition: all 0.2s ease;
+}
+.tile-box:hover {
+    transform: translateY(-3px);
+}
 
-    /* Style cho xúc xắc ĐÃ CHỌN (Khóa lại) */
-    .dice-locked-display {
-        width: 75px; height: 75px; border-radius: 12px; border: 2px dashed #888;
-        opacity: 0.4; filter: grayscale(80%); /* Làm xám để phân biệt rõ đã dùng */
-        margin: 15px auto 10px auto; position: relative; display: block;
-        pointer-events: none;
-    }
+.tile-empty {
+    border: 1px dashed #94a3b8;
+    border-radius: 10px;
+    padding: 10px 2px;
+    text-align: center;
+    background-color: transparent;
+    color: #94a3b8 !important;
+    font-size: 20px;
+    margin-bottom: 6px;
+}
 
-    .dice-graphic { width: 50px; height: 50px; display: inline-block; border-radius: 10px; border: 2px solid #555; margin: 4px; position: relative; vertical-align: middle; }
-    .dice-small { width: 25px; height: 25px; border-radius: 5px; border: 1px solid #555; margin: 2px; display: inline-block; position: relative; vertical-align: middle; }
+.worm-icon {
+    font-size: 14px;
+    letter-spacing: -2px;
+    margin-top: -4px;
+}
 
-    .face-1 { background-color: #ffadad !important; background-image: radial-gradient(circle, #333 35%, transparent 40%) !important; background-position: 50% 50% !important; background-size: 25% 25% !important; background-repeat: no-repeat !important; }
-    .face-2 { background-color: #ffd6a5 !important; background-image: radial-gradient(circle, #333 35%, transparent 40%), radial-gradient(circle, #333 35%, transparent 40%) !important; background-position: 20% 20%, 80% 80% !important; background-size: 25% 25%, 25% 25% !important; background-repeat: no-repeat !important; }
-    .face-3 { background-color: #fdffb6 !important; background-image: radial-gradient(circle, #333 35%, transparent 40%), radial-gradient(circle, #333 35%, transparent 40%), radial-gradient(circle, #333 35%, transparent 40%) !important; background-position: 15% 15%, 50% 50%, 85% 85% !important; background-size: 22% 22%, 22% 22%, 22% 22% !important; background-repeat: no-repeat !important; }
-    .face-4 { background-color: #caffbf !important; background-image: radial-gradient(circle, #333 35%, transparent 40%), radial-gradient(circle, #333 35%, transparent 40%), radial-gradient(circle, #333 35%, transparent 40%), radial-gradient(circle, #333 35%, transparent 40%) !important; background-position: 20% 20%, 80% 20%, 20% 80%, 80% 80% !important; background-size: 25% 25%, 25% 25%, 25% 25%, 25% 25% !important; background-repeat: no-repeat !important; }
-    .face-5 { background-color: #9bf6ff !important; background-image: radial-gradient(circle, #333 35%, transparent 40%), radial-gradient(circle, #333 35%, transparent 40%), radial-gradient(circle, #333 35%, transparent 40%), radial-gradient(circle, #333 35%, transparent 40%), radial-gradient(circle, #333 35%, transparent 40%) !important; background-position: 15% 15%, 85% 15%, 50% 50%, 15% 85%, 85% 85% !important; background-size: 22% 22%, 22% 22%, 22% 22%, 22% 22%, 22% 22% !important; background-repeat: no-repeat !important; }
-    .face-W { background-color: #e5bef7 !important; position: relative !important; }
+/* ===== DICE ===== */
+.dice-active-display {
+    display: flex;
+align-items: center;
+justify-content: center;
+    width: 62px;
+    height: 62px;
+    border-radius: 14px;
+    border: 2px solid rgba(0,0,0,0.15);
+    margin: 10px auto 6px auto;
+    position: relative;
+    transition: all 0.18s ease;
+    box-shadow: 
+    6px 6px 12px rgba(0,0,0,0.18),
+    inset -4px -4px 8px rgba(255,255,255,0.7),
+    inset 3px 3px 6px rgba(0,0,0,0.08);
+background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,240,240,0.8));
+}
+
+.dice-active-display:hover {
+    transform: scale(1.05);
+}
+
+.dice-selected-pop {
+    transform: translateY(-4px) scale(1.06);
+    box-shadow: 0 0 12px rgba(0,0,0,0.2);
+}
+
+/* LOCKED */
+.dice-locked-display {
+    width: 62px;
+    height: 62px;
+    border-radius: 14px;
+    border: 2px dashed #cbd5f5;
+    margin: 10px auto 6px auto;
+    position: relative;
+
+    background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
     
-    /* Text "SÂU" đồng bộ tone Pastel */
-    .face-W::after { content: "🐛"; font-size: 35px; font-weight: 800; color: #334155; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    /* ❌ bỏ opacity để không làm mờ 🐛 */
+    opacity: 1;
+}
+
+/* chỉ làm mờ chấm số, KHÔNG làm mờ 🐛 */
+.dice-locked-display.face-1,
+.dice-locked-display.face-2,
+.dice-locked-display.face-3,
+.dice-locked-display.face-4,
+.dice-locked-display.face-5 {
+    filter: grayscale(90%);
+}
+
+/* đảm bảo 🐛 luôn rõ */
+.face-W::after {
+    content: "🐛";
+    font-size: 26px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+/* MINI */
+.dice-graphic {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    margin: 3px;
+    display: inline-block;
+    position: relative;
+
+    box-shadow: 
+        4px 4px 8px rgba(0,0,0,0.2),
+        inset -3px -3px 5px rgba(255,255,255,0.7),
+        inset 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.dice-small {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    margin: 2px;
+    display: inline-block;
+
+    box-shadow: 
+        2px 2px 4px rgba(0,0,0,0.2),
+        inset -2px -2px 3px rgba(255,255,255,0.6);
+}
+
+.dice-active-display::after {
+    content: "";
+    position: absolute;
+    top: 8%;
+    left: 10%;
+    width: 40%;
+    height: 25%;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    filter: blur(2px);
+}
+
+/* ===== FACES ===== */
+.face-1 {
+    background-color: #ffadad;
+    background-image: radial-gradient(circle, #334155 35%, transparent 40%);
+    background-position: center;
+    background-size: 26% 26%;
+    background-repeat: no-repeat;
+}
+
+.face-2 {
+    background-color: #ffd6a5;
+    background-image: 
+        radial-gradient(circle, #334155 35%, transparent 40%),
+        radial-gradient(circle, #334155 35%, transparent 40%);
+    background-position: 25% 25%, 75% 75%;
+    background-size: 26% 26%;
+    background-repeat: no-repeat;
+}
+
+.face-3 {
+    background-color: #fdffb6;
+    background-image: 
+        radial-gradient(circle, #334155 35%, transparent 40%),
+        radial-gradient(circle, #334155 35%, transparent 40%),
+        radial-gradient(circle, #334155 35%, transparent 40%);
+    background-position: 20% 20%, 50% 50%, 80% 80%;
+    background-size: 24% 24%;
+    background-repeat: no-repeat;
+}
+
+.face-4 {
+    background-color: #caffbf;
+    background-image: 
+        radial-gradient(circle, #334155 35%, transparent 40%),
+        radial-gradient(circle, #334155 35%, transparent 40%),
+        radial-gradient(circle, #334155 35%, transparent 40%),
+        radial-gradient(circle, #334155 35%, transparent 40%);
+    background-position: 25% 25%, 75% 25%, 25% 75%, 75% 75%;
+    background-size: 26% 26%;
+    background-repeat: no-repeat;
+}
+
+.face-5 {
+    background-color: #9bf6ff;
+    background-image: 
+        radial-gradient(circle, #334155 35%, transparent 40%),
+        radial-gradient(circle, #334155 35%, transparent 40%),
+        radial-gradient(circle, #334155 35%, transparent 40%),
+        radial-gradient(circle, #334155 35%, transparent 40%),
+        radial-gradient(circle, #334155 35%, transparent 40%);
+    background-position: 
+        20% 20%, 80% 20%, 50% 50%, 20% 80%, 80% 80%;
+    background-size: 24% 24%;
+    background-repeat: no-repeat;
+}
+.face-W { background-color: #e5bef7; position: relative; }
+
+/* WORM */
+.face-W {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+
+
+.dice-small.face-W::after {
+    font-size: 9px;
+}
+
+/* ===== BUTTON "CHỌN" ===== */
+div[data-testid="stButton"] button[kind="secondary"] {
+    font-size: 11px !important;
+    padding: 2px 4px !important;
+    min-height: 24px !important;
+    border-radius: 6px !important;
+    background: #f1f5f9 !important;
+    border: none !important;
+    color: #334155 !important;
+    transition: all 0.15s ease;
+}
+
+div[data-testid="stButton"] button[kind="secondary"]:hover {
+    background: #e2e8f0 !important;
+    transform: scale(1.05);
+}
+
+/* ===== CONFIRM BUTTON ===== */
+div[data-testid="stButton"] button[kind="primary"] {
+    border-radius: 10px !important;
+}
+
+/* ===== STACK TILE (TÚI ĐỒ) ===== */
+
+.tile-stack {
+    width: 65px;
+    height: 75px;
+    border-radius: 12px;
+    margin: 6px auto;
+    padding: 6px 4px;
+
+    background: linear-gradient(145deg, #ffffff, #e2e8f0);
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    box-shadow: 
+        4px 4px 8px rgba(0,0,0,0.15),
+        inset -2px -2px 4px rgba(255,255,255,0.7);
+    
+    transition: all 0.2s ease;
+}
+
+.tile-stack:hover {
+    transform: translateY(-3px) scale(1.05);
+}
+
+/* số */
+.tile-value {
+    font-weight: 800;
+    font-size: 20px;
+    color: #0f172a;
+}
+
+/* sâu */
+.tile-worm {
+    font-size: 14px;
+    letter-spacing: -2px;
+}
+
+/* thẻ trên cùng (highlight) */
+.top-tile {
+    border: 2px solid #ef4444;
+    box-shadow: 
+        0 0 12px rgba(239,68,68,0.6),
+        4px 4px 8px rgba(0,0,0,0.2);
+}
+            
+/* ===== ALIGN ===== */
+div[data-testid="column"] {
+    text-align: center;
+}
     .dice-small.face-W::after { font-size: 10px; }
+            /* Thu nhỏ riêng nút "Chọn" dưới xúc xắc */
+div[data-testid="stButton"] button[kind="secondary"] {
+    font-size: 11px !important;
+    padding: 3px 6px !important;
+    min-height: 26px !important;
+}
     </style>
 """, unsafe_allow_html=True)
 
@@ -382,7 +617,12 @@ for i in [0, 1]:
         for t in reversed(stack):
             # Thẻ trên cùng (stack[-1]) được viền đỏ để báo hiệu đây là thẻ có thể bị cướp
             is_top = ' border: 3px solid #ff4b4b;' if t == stack[-1] else ''
-            st.sidebar.markdown(f'<div class="tile-mini" style="{is_top}">{t}<br><div class="worm-icon">{"🐛"*get_worms(t)}</div></div>', unsafe_allow_html=True)
+            st.sidebar.markdown(f"""
+<div class="tile-stack { 'top-tile' if t == stack[-1] else '' }">
+    <div class="tile-value">{t}</div>
+    <div class="tile-worm">{"🐛"*get_worms(t)}</div>
+</div>
+""", unsafe_allow_html=True)
 
 st.sidebar.divider()
 if st.sidebar.button("🏳️ Đầu Hàng Ngay", use_container_width=True):
@@ -554,7 +794,8 @@ with c1:
                 else:
                     pop = "dice-selected-pop" if is_sel else ""
                     st.markdown(f'<div class="dice-active-display face-{val} {pop}"></div>', unsafe_allow_html=True)
-                    
+                    st.markdown("<div style='margin-top:-6px'></div>", unsafe_allow_html=True)
+
                     label = "❌ Bỏ" if is_sel else "👆 Chọn"
                     if st.button(label, key=f"b_{i}", use_container_width=True, type="primary" if is_sel else "secondary"):
                         matching_indices = set(idx for idx, v in enumerate(st.session_state.current_roll) if v == val)
@@ -579,7 +820,12 @@ with c1:
         with st.expander("📜 Nhật ký lắc xúc xắc lượt này", expanded=True):
             for i, r in enumerate(st.session_state.roll_history):
                 hist_html = "".join([f'<div class="dice-small face-{x}"></div>' for x in r])
-                st.markdown(f"**Lần {i+1}:** {hist_html}", unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                        <div style="min-width:70px; font-weight:600;">Lần {i+1}:</div>
+                        <div style="display:flex; flex-wrap:wrap;">{hist_html}</div>
+                    </div>
+                """, unsafe_allow_html=True)
 
 with c2:
     if total > st.session_state.stats_max_roll[turn_idx]:
